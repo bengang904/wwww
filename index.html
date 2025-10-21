@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>www.2024-10-24.zip</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://unpkg.com/7.css">
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: linear-gradient(#2b6cb0, #1c4878);
+      font-family: "Segoe UI", sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    iframe {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      z-index: 0;
+    }
+
+    .dialog-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    #launcher .window-body,
+    #dialog .window-body {
+      padding: 16px 22px;
+    }
+
+    #launcher p,
+    #dialog p {
+      margin-bottom: 12px;
+    }
+
+    .window {
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+      border-radius: 4px;
+      width: fit-content;
+      max-width: 80vw; 
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    #dialog .window {
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    #launcher {
+      width: 380px;
+      max-width: 80vw; 
+    }
+
+    #inputUrl {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 6px 8px;
+    }
+
+    #dialog .window {
+      width: 340px;
+      max-width: 80vw;
+    }
+  </style>
+</head>
+<body class="win7">
+  <div id="launcher" class="window active">
+    <div class="title-bar">
+      <div class="title-bar-text">https://www.2024-10-24.zip</div>
+    </div>
+    <div class="window-body">
+      <p>请输入要在线访问的 URL：</p>
+      <form id="urlForm" class="field-row-stacked">
+        <input type="url" id="inputUrl" placeholder="例如：https://2024-10-24.zip" required>
+        <section class="field-row" style="justify-content:flex-end; margin-top: 12px;">
+          <button type="submit">在线访问</button>
+        </section>
+      </form>
+    </div>
+  </div>
+  <div id="dialog" class="dialog-overlay" style="display:none;">
+    <div class="window">
+      <div class="title-bar">
+        <div class="title-bar-text">外部链接提示</div>
+      </div>
+      <div class="window-body">
+        <p>检测到链接：<br><span id="urlText" style="color:#0645AD;"></span></p>
+        <p>确定要在此页面内显示吗？</p>
+        <section class="field-row" style="justify-content:flex-end;">
+          <button id="confirmBtn">确定</button>
+          <button id="cancelBtn">取消</button>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <iframe id="viewer" style="display:none;"></iframe>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const url = params.get('url');
+    const viewer = document.getElementById('viewer');
+    const dialog = document.getElementById('dialog');
+    const urlText = document.getElementById('urlText');
+    const launcher = document.getElementById('launcher');
+
+    if (url) {
+      launcher.style.display = 'none';
+      dialog.style.display = 'flex';
+      urlText.textContent = url;
+    }
+
+    document.getElementById('confirmBtn').addEventListener('click', () => {
+      dialog.style.display = 'none';
+      viewer.src = url;
+      viewer.style.display = 'block';
+      document.body.style.display = 'block';
+      document.body.style.background = 'none';
+    });
+
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+      window.open(url, '_blank');
+      dialog.style.display = 'none';
+    });
+
+    document.getElementById('urlForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const inputUrl = document.getElementById('inputUrl').value.trim();
+      if (inputUrl) {
+        const encoded = encodeURIComponent(inputUrl);
+        window.location.href = `${window.location.pathname}?url=${encoded}`;
+      }
+    });
+  </script>
+</body>
+</html>
