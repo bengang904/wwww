@@ -4,12 +4,7 @@
   <meta charset="utf-8">
   <title>wwww.2024-10-24.zip</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel='shortcut icon' href='https://2024-10-24.zip/images/wwww.jpg'>
-  <link rel='icon' href='https://2024-10-24.zip/images/wwww.jpg'>
-  <link rel='apple-touch-icon-precomposed' href='https://2024-10-24.zip/images/wwww.jpg'>
-  <meta name='msapplication-TileImage' content='https://2024-10-24.zip/images/wwww.jpg'>
   <link rel="stylesheet" href="https://unpkg.com/7.css">
-  <!-- 引入 CryptoJS -->
   <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/crypto-js.min.js"></script>
   <style>
     html, body {
@@ -21,7 +16,6 @@
       align-items: center;
       justify-content: center;
     }
-
     iframe {
       position: fixed;
       top: 0;
@@ -31,7 +25,6 @@
       border: none;
       z-index: 0;
     }
-
     .dialog-overlay {
       position: fixed;
       top: 0; left: 0;
@@ -42,44 +35,37 @@
       justify-content: center;
       z-index: 9999;
     }
-
     #launcher .window-body,
     #dialog .window-body {
       padding: 16px 22px;
     }
-
     #launcher p,
     #dialog p {
       margin-bottom: 12px;
     }
-
     .window {
       box-shadow: 0 6px 16px rgba(0,0,0,0.3);
       border-radius: 4px;
       width: fit-content;
       max-width: 80vw;
     }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: scale(0.95); }
       to { opacity: 1; transform: scale(1); }
     }
-
     #dialog .window {
       animation: fadeIn 0.25s ease-out;
     }
-
     #launcher {
-      width: 380px;
+      width: 400px;
       max-width: 80vw;
     }
-
-    #inputUrl {
+    #inputUrl, #inputTitle, #inputIcon {
       width: 100%;
       box-sizing: border-box;
       padding: 6px 8px;
+      margin-bottom: 8px;
     }
-
     #dialog .window {
       width: 340px;
       max-width: 80vw;
@@ -87,96 +73,88 @@
   </style>
 </head>
 <body class="win7">
-  <div id="launcher" class="window active">
-    <div class="title-bar">
-      <div class="title-bar-text">https://wwww.2024-10-24.zip</div>
-    </div>
+<div id="launcher" class="window active">
+  <div class="title-bar"><div class="title-bar-text">https://wwww.2024-10-24.zip</div></div>
+  <div class="window-body">
+    <p>请输入要加密访问的 URL：</p>
+    <input type="url" id="inputUrl" placeholder="例如：https://2024-10-24.zip" required>
+    <input type="text" id="inputTitle" placeholder="新标签页标题 (可选)">
+    <input type="url" id="inputIcon" placeholder="新标签页图标 URL (可选)">
+    <section class="field-row" style="justify-content:flex-end;">
+      <button id="encryptBtn">加密链接</button>
+    </section>
+  </div>
+</div>
+
+<div id="dialog" class="dialog-overlay" style="display:none;">
+  <div class="window">
+    <div class="title-bar"><div class="title-bar-text">外部链接提示</div></div>
     <div class="window-body">
-      <p>请输入要加密访问的 URL：</p>
-      <form id="urlForm" class="field-row-stacked">
-        <input type="url" id="inputUrl" placeholder="例如：https://2024-10-24.zip" required>
-        <section class="field-row" style="justify-content:flex-end; margin-top: 12px;">
-          <button type="submit">加密链接</button>
-        </section>
-      </form>
+      <p>检测到解密后链接：<br><span id="urlText" style="color:#0645AD;"></span></p>
+      <p>确定要在此页面内显示吗？</p>
+      <section class="field-row" style="justify-content:flex-end;">
+        <button id="confirmBtn">确定</button>
+        <button id="cancelBtn">取消</button>
+      </section>
     </div>
   </div>
+</div>
 
-  <div id="dialog" class="dialog-overlay" style="display:none;">
-    <div class="window">
-      <div class="title-bar">
-        <div class="title-bar-text">外部链接提示</div>
-      </div>
-      <div class="window-body">
-        <p>检测到加密链接：<br><span id="urlText" style="color:#0645AD;"></span></p>
-        <p>确定要在此页面内显示吗？</p>
-        <section class="field-row" style="justify-content:flex-end;">
-          <button id="confirmBtn">确定</button>
-          <button id="cancelBtn">取消</button>
-        </section>
-      </div>
-    </div>
-  </div>
-  <iframe id="viewer" style="display:none;"></iframe>
-  <script>
-    const SECRET_KEY = "wwww.2024-10-24.zip";
+<iframe id="viewer" style="display:none;"></iframe>
 
-    function encryptUrl(text) {
-      const ciphertext = CryptoJS.AES.encrypt(text, SECRET_KEY).toString();
-      return encodeURIComponent(ciphertext);
-    }
+<script>
+const SECRET_KEY = "wwww.2024-10-24.zip";
+function encryptUrl(text){ return encodeURIComponent(CryptoJS.AES.encrypt(text, SECRET_KEY).toString()); }
+function decryptUrl(text){ try{ return CryptoJS.AES.decrypt(decodeURIComponent(text), SECRET_KEY).toString(CryptoJS.enc.Utf8) || null; } catch(e){ return null; } }
+function updateFavicon(iconUrl){ let link=document.querySelector("link[rel*='icon']")||document.createElement('link'); link.rel='icon'; link.href=iconUrl; document.head.appendChild(link); }
 
-    function decryptUrl(ciphertext) {
-      try {
-        const bytes = CryptoJS.AES.decrypt(decodeURIComponent(ciphertext), SECRET_KEY);
-        const originalText = bytes.toString(CryptoJS.enc.Utf8);
-        return originalText || null;
-      } catch (e) {
-        return null;
-      }
-    }
+const params = new URLSearchParams(window.location.search);
+const data = params.get('data');
+const viewer = document.getElementById('viewer');
+const dialog = document.getElementById('dialog');
+const urlText = document.getElementById('urlText');
+const launcher = document.getElementById('launcher');
+let url = null;
 
-    const params = new URLSearchParams(window.location.search);
-    const data = params.get('data'); 
-    const viewer = document.getElementById('viewer');
-    const dialog = document.getElementById('dialog');
-    const urlText = document.getElementById('urlText');
-    const launcher = document.getElementById('launcher');
+if(data){
+  url = decryptUrl(data);
+  const title = params.get('title');
+  const icon = params.get('icon');
+  if(title) document.title = title;
+  if(icon) updateFavicon(icon);
+  if(url){
+    launcher.style.display='none';
+    dialog.style.display='flex';
+    urlText.textContent=url;
+  } else { alert("无法解密该链接，请检查参数是否正确。"); }
+}
 
-    let url = null;
-
-    if (data) {
-      url = decryptUrl(data);
-      if (url) {
-        launcher.style.display = 'none';
-        dialog.style.display = 'flex';
-        urlText.textContent = url;
-      } else {
-        alert("无法解密该链接，请检查参数是否正确。");
-      }
-    }
-
-    document.getElementById('confirmBtn').addEventListener('click', () => {
-      dialog.style.display = 'none';
-      viewer.src = url;
-      viewer.style.display = 'block';
-      document.body.style.display = 'block';
-      document.body.style.background = 'none';
-    });
-
-    document.getElementById('cancelBtn').addEventListener('click', () => {
-      window.open(url, '_blank');
-      dialog.style.display = 'none';
-    });
-
-    document.getElementById('urlForm').addEventListener('submit', e => {
-      e.preventDefault();
-      const inputUrl = document.getElementById('inputUrl').value.trim();
-      if (inputUrl) {
-        const encrypted = encryptUrl(inputUrl);
-        window.location.href = `${window.location.pathname}?data=${encrypted}`;
-      }
-    });
-  </script>
+document.getElementById('confirmBtn').addEventListener('click', ()=>{
+  dialog.style.display='none';
+  viewer.src=url;
+  viewer.style.display='block';
+  document.body.style.background='none';
+});
+document.getElementById('cancelBtn').addEventListener('click', ()=>{
+  window.open(url,'_blank');
+  dialog.style.display='none';
+});
+document.getElementById('encryptBtn').addEventListener('click', e=>{
+  e.preventDefault();
+  const inputUrl = document.getElementById('inputUrl').value.trim();
+  const inputTitle = document.getElementById('inputTitle').value.trim();
+  const inputIcon = document.getElementById('inputIcon').value.trim();
+  if(inputUrl){
+    const encrypted = encryptUrl(inputUrl);
+    const newUrl = `${window.location.pathname}?data=${encrypted}`
+      + (inputTitle ? `&title=${encodeURIComponent(inputTitle)}` : '')
+      + (inputIcon ? `&icon=${encodeURIComponent(inputIcon)}` : '');
+    navigator.clipboard.writeText(window.location.origin + newUrl).then(()=>{
+      alert("加密链接已复制到剪贴板！");
+      window.location.href = newUrl;
+    }).catch(()=>{ window.location.href = newUrl; });
+  }
+});
+</script>
 </body>
 </html>
