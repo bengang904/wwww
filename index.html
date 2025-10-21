@@ -4,10 +4,6 @@
   <meta charset="utf-8">
   <title>wwww.2024-10-24.zip</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-   <link rel='shortcut icon' href='https://2024-10-24.zip/images/wwww.jpg'>
-  <link rel='icon' href='https://2024-10-24.zip/images/wwww.jpg'>
-  <link rel='apple-touch-icon-precomposed' href='https://2024-10-24.zip/images/wwww.jpg'>
-  <meta name='msapplication-TileImage' content='https://2024-10-24.zip/images/wwww.jpg'>
   <link rel="stylesheet" href="https://unpkg.com/7.css">
   <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/crypto-js.min.js"></script>
   <style>
@@ -39,8 +35,8 @@
   <div class="window-body">
     <p>请输入要加密访问的 URL：</p>
     <input type="url" id="inputUrl" placeholder="例如：https://2024-10-24.zip" required>
-    <input type="text" id="inputTitle" placeholder="标签页标题 (可选)">
-    <input type="url" id="inputIcon" placeholder="标签页图标 URL (可选)">
+    <input type="text" id="inputTitle" placeholder="新标签页标题 (可选)">
+    <input type="url" id="inputIcon" placeholder="新标签页图标 URL (可选)">
     <section class="field-row" style="justify-content:flex-end;">
       <button id="encryptBtn">加密链接</button>
     </section>
@@ -65,6 +61,7 @@
 
 <script>
 const SECRET_KEY="wwww.2024-10-24.zip";
+const DEFAULT_ICON="https://2024-10-24.zip/images/wwww.jpg";
 function encrypt(text){ return encodeURIComponent(CryptoJS.AES.encrypt(text,SECRET_KEY).toString()); }
 function decrypt(text){ try{ return CryptoJS.AES.decrypt(decodeURIComponent(text),SECRET_KEY).toString(CryptoJS.enc.Utf8)||null;}catch(e){return null;} }
 function updateFavicon(icon){ let link=document.querySelector("link[rel*='icon']")||document.createElement('link'); link.rel='icon'; link.href=icon; document.head.appendChild(link); }
@@ -82,7 +79,7 @@ if(data){
     const decrypted = JSON.parse(decrypt(data));
     url = decrypted.url || null;
     title = decrypted.title || null;
-    icon = decrypted.icon || null;
+    icon = decrypted.icon || DEFAULT_ICON;
     if(title) document.title=title;
     if(icon) updateFavicon(icon);
     if(url){
@@ -91,6 +88,8 @@ if(data){
       urlText.textContent=url;
     }else{ alert("无法解密链接"); }
   }catch(e){ alert("无法解密链接"); }
+}else{
+  updateFavicon(DEFAULT_ICON);
 }
 
 document.getElementById('confirmBtn').addEventListener('click',()=>{
@@ -108,7 +107,7 @@ document.getElementById('encryptBtn').addEventListener('click',e=>{
   e.preventDefault();
   const inputUrl=document.getElementById('inputUrl').value.trim();
   const inputTitle=document.getElementById('inputTitle').value.trim();
-  const inputIcon=document.getElementById('inputIcon').value.trim();
+  const inputIcon=document.getElementById('inputIcon').value.trim() || DEFAULT_ICON;
   if(inputUrl){
     const payload={url:inputUrl,title:inputTitle,icon:inputIcon};
     const encrypted=encrypt(JSON.stringify(payload));
@@ -119,4 +118,3 @@ document.getElementById('encryptBtn').addEventListener('click',e=>{
 </script>
 </body>
 </html>
-
