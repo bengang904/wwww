@@ -24,7 +24,7 @@
     @keyframes fadeIn { from {opacity:0; transform:scale(0.95);} to {opacity:1; transform:scale(1);} }
     #dialog .window { animation: fadeIn 0.25s ease-out; }
     #launcher { width: 400px; max-width:80vw; }
-    #inputUrl, #inputTitle, #inputIcon { width:100%; box-sizing:border-box; padding:6px 8px; margin-bottom: 8px; }
+    #inputUrl, #inputTitle, #inputIcon, #skipDialogSelect { width:100%; box-sizing:border-box; padding:6px 8px; margin-bottom: 8px; }
     #dialog .window { width:340px; max-width:80vw; }
   </style>
 </head>
@@ -37,6 +37,11 @@
     <input type="url" id="inputUrl" placeholder="例如：https://2024-10-24.zip" required>
     <input type="text" id="inputTitle" placeholder="标签页标题 (可选)">
     <input type="url" id="inputIcon" placeholder="标签页图标 URL (可选)">
+    <p>外部链接提示选项：</p>
+    <select id="skipDialogSelect">
+      <option value="no">显示提示（默认）</option>
+      <option value="yes">跳过提示，直接打开链接</option>
+    </select>
     <section class="field-row" style="justify-content:flex-end;">
       <button id="encryptBtn">加密链接</button>
     </section>
@@ -85,13 +90,24 @@ function ensureProtocol(url){
   return url;
 }
 
+// 获取 URL 参数
 const params = new URLSearchParams(window.location.search);
 const data = params.get('data');
 const viewer = document.getElementById('viewer');
 const dialog = document.getElementById('dialog');
 const urlText = document.getElementById('urlText');
 const launcher = document.getElementById('launcher');
+const skipSelect = document.getElementById('skipDialogSelect');
+
 let url=null, title=null, icon=null;
+
+// 初始化下拉框值
+skipSelect.value = localStorage.getItem('skipDialog') || 'no';
+skipSelect.addEventListener('change', ()=>{
+  localStorage.setItem('skipDialog', skipSelect.value);
+});
+
+const skipDialog = localStorage.getItem('skipDialog') === 'yes';
 
 if(data){
   try{
@@ -103,8 +119,14 @@ if(data){
     if(icon) updateFavicon(icon);
     if(url){
       launcher.style.display='none';
-      dialog.style.display='flex';
-      urlText.textContent=url;
+      if(skipDialog){
+        viewer.src=url;
+        viewer.style.display='block';
+        document.body.style.background='none';
+      }else{
+        dialog.style.display='flex';
+        urlText.textContent=url;
+      }
     }else{ alert("无法解密链接"); }
   }catch(e){ alert("无法解密链接"); }
 }else{
@@ -128,13 +150,21 @@ document.getElementById('encryptBtn').addEventListener('click',e=>{
   inputUrl = ensureProtocol(inputUrl);
   const inputTitle=document.getElementById('inputTitle').value.trim();
   const inputIcon=document.getElementById('inputIcon').value.trim() || DEFAULT_ICON;
+  const skipOption = skipSelect.value;
+  localStorage.setItem('skipDialog', skipOption); // 保存用户选择
   if(inputUrl){
     const payload={url:inputUrl,title:inputTitle,icon:inputIcon};
     const encrypted=encrypt(JSON.stringify(payload));
     const newUrl=`${window.location.pathname}?data=${encrypted}`;
-    navigator.clipboard.writeText(window.location.origin+newUrl).then(()=>{ alert("加密链接已复制到剪贴板！"); window.location.href=newUrl; }).catch(()=>{ window.location.href=newUrl; });
+    navigator.clipboard.writeText(window.location.origin+newUrl).then(()=>{
+      alert("加密链接已复制到剪贴板！");
+      window.location.href=newUrl;
+    }).catch(()=>{
+      window.location.href=newUrl;
+    });
   }
 });
 </script>
+
 </body>
 </html>
