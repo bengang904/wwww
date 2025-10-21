@@ -144,6 +144,10 @@ document.getElementById('cancelBtn').addEventListener('click',()=>{
 document.getElementById('encryptBtn').addEventListener('click', e=>{
   e.preventDefault();
   let inputUrl=document.getElementById('inputUrl').value.trim();
+  if(/^http:\/\//i.test(inputUrl)){
+    alert("不支持 HTTP 链接，请使用 HTTPS URL");
+    return;
+  }
   inputUrl = ensureProtocol(inputUrl);
   const inputTitle=document.getElementById('inputTitle').value.trim();
   const inputIcon=document.getElementById('inputIcon').value.trim() || DEFAULT_ICON;
