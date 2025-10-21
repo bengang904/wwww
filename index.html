@@ -80,6 +80,11 @@ function updateFavicon(icon){
   document.head.appendChild(meta);
 }
 
+function ensureProtocol(url){
+  if(!/^https?:\/\//i.test(url)) return "http://" + url;
+  return url;
+}
+
 const params = new URLSearchParams(window.location.search);
 const data = params.get('data');
 const viewer = document.getElementById('viewer');
@@ -91,7 +96,7 @@ let url=null, title=null, icon=null;
 if(data){
   try{
     const decrypted = JSON.parse(decrypt(data));
-    url = decrypted.url || null;
+    url = decrypted.url ? ensureProtocol(decrypted.url) : null;
     title = decrypted.title || null;
     icon = decrypted.icon || DEFAULT_ICON;
     if(title) document.title=title;
@@ -119,7 +124,8 @@ document.getElementById('cancelBtn').addEventListener('click',()=>{
 
 document.getElementById('encryptBtn').addEventListener('click',e=>{
   e.preventDefault();
-  const inputUrl=document.getElementById('inputUrl').value.trim();
+  let inputUrl=document.getElementById('inputUrl').value.trim();
+  inputUrl = ensureProtocol(inputUrl);
   const inputTitle=document.getElementById('inputTitle').value.trim();
   const inputIcon=document.getElementById('inputIcon').value.trim() || DEFAULT_ICON;
   if(inputUrl){
@@ -132,5 +138,3 @@ document.getElementById('encryptBtn').addEventListener('click',e=>{
 </script>
 </body>
 </html>
-
-
