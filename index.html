@@ -16,70 +16,27 @@
       align-items: center;
       justify-content: center;
     }
-    iframe {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-      z-index: 0;
-    }
-    .dialog-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-    #launcher .window-body,
-    #dialog .window-body {
-      padding: 16px 22px;
-    }
-    #launcher p,
-    #dialog p {
-      margin-bottom: 12px;
-    }
-    .window {
-      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
-      border-radius: 4px;
-      width: fit-content;
-      max-width: 80vw;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    #dialog .window {
-      animation: fadeIn 0.25s ease-out;
-    }
-    #launcher {
-      width: 400px;
-      max-width: 80vw;
-    }
-    #inputUrl, #inputTitle, #inputIcon {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 6px 8px;
-      margin-bottom: 8px;
-    }
-    #dialog .window {
-      width: 340px;
-      max-width: 80vw;
-    }
+    iframe { position: fixed; top:0; left:0; width:100%; height:100%; border:none; z-index:0; }
+    .dialog-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; z-index:9999; }
+    #launcher .window-body, #dialog .window-body { padding:16px 22px; }
+    #launcher p, #dialog p { margin-bottom: 12px; }
+    .window { box-shadow:0 6px 16px rgba(0,0,0,0.3); border-radius:4px; width: fit-content; max-width: 80vw; }
+    @keyframes fadeIn { from {opacity:0; transform:scale(0.95);} to {opacity:1; transform:scale(1);} }
+    #dialog .window { animation: fadeIn 0.25s ease-out; }
+    #launcher { width: 400px; max-width:80vw; }
+    #inputUrl, #inputTitle, #inputIcon { width:100%; box-sizing:border-box; padding:6px 8px; margin-bottom: 8px; }
+    #dialog .window { width:340px; max-width:80vw; }
   </style>
 </head>
 <body class="win7">
+
 <div id="launcher" class="window active">
   <div class="title-bar"><div class="title-bar-text">https://wwww.2024-10-24.zip</div></div>
   <div class="window-body">
     <p>请输入要加密访问的 URL：</p>
     <input type="url" id="inputUrl" placeholder="例如：https://2024-10-24.zip" required>
-    <input type="text" id="inputTitle" placeholder="新标签页标题 (可选)">
-    <input type="url" id="inputIcon" placeholder="新标签页图标 URL (可选)">
+    <input type="text" id="inputTitle" placeholder="标签页标题 (可选)">
+    <input type="url" id="inputIcon" placeholder="标签页图标 URL (可选)">
     <section class="field-row" style="justify-content:flex-end;">
       <button id="encryptBtn">加密链接</button>
     </section>
@@ -103,10 +60,10 @@
 <iframe id="viewer" style="display:none;"></iframe>
 
 <script>
-const SECRET_KEY = "wwww.2024-10-24.zip";
-function encryptUrl(text){ return encodeURIComponent(CryptoJS.AES.encrypt(text, SECRET_KEY).toString()); }
-function decryptUrl(text){ try{ return CryptoJS.AES.decrypt(decodeURIComponent(text), SECRET_KEY).toString(CryptoJS.enc.Utf8) || null; } catch(e){ return null; } }
-function updateFavicon(iconUrl){ let link=document.querySelector("link[rel*='icon']")||document.createElement('link'); link.rel='icon'; link.href=iconUrl; document.head.appendChild(link); }
+const SECRET_KEY="wwww.2024-10-24.zip";
+function encrypt(text){ return encodeURIComponent(CryptoJS.AES.encrypt(text,SECRET_KEY).toString()); }
+function decrypt(text){ try{ return CryptoJS.AES.decrypt(decodeURIComponent(text),SECRET_KEY).toString(CryptoJS.enc.Utf8)||null;}catch(e){return null;} }
+function updateFavicon(icon){ let link=document.querySelector("link[rel*='icon']")||document.createElement('link'); link.rel='icon'; link.href=icon; document.head.appendChild(link); }
 
 const params = new URLSearchParams(window.location.search);
 const data = params.get('data');
@@ -114,45 +71,45 @@ const viewer = document.getElementById('viewer');
 const dialog = document.getElementById('dialog');
 const urlText = document.getElementById('urlText');
 const launcher = document.getElementById('launcher');
-let url = null;
+let url=null, title=null, icon=null;
 
 if(data){
-  url = decryptUrl(data);
-  const title = params.get('title');
-  const icon = params.get('icon');
-  if(title) document.title = title;
-  if(icon) updateFavicon(icon);
-  if(url){
-    launcher.style.display='none';
-    dialog.style.display='flex';
-    urlText.textContent=url;
-  } else { alert("无法解密该链接，请检查参数是否正确。"); }
+  try{
+    const decrypted = JSON.parse(decrypt(data));
+    url = decrypted.url || null;
+    title = decrypted.title || null;
+    icon = decrypted.icon || null;
+    if(title) document.title=title;
+    if(icon) updateFavicon(icon);
+    if(url){
+      launcher.style.display='none';
+      dialog.style.display='flex';
+      urlText.textContent=url;
+    }else{ alert("无法解密链接"); }
+  }catch(e){ alert("无法解密链接"); }
 }
 
-document.getElementById('confirmBtn').addEventListener('click', ()=>{
+document.getElementById('confirmBtn').addEventListener('click',()=>{
   dialog.style.display='none';
   viewer.src=url;
   viewer.style.display='block';
   document.body.style.background='none';
 });
-document.getElementById('cancelBtn').addEventListener('click', ()=>{
+document.getElementById('cancelBtn').addEventListener('click',()=>{
   window.open(url,'_blank');
   dialog.style.display='none';
 });
-document.getElementById('encryptBtn').addEventListener('click', e=>{
+
+document.getElementById('encryptBtn').addEventListener('click',e=>{
   e.preventDefault();
-  const inputUrl = document.getElementById('inputUrl').value.trim();
-  const inputTitle = document.getElementById('inputTitle').value.trim();
-  const inputIcon = document.getElementById('inputIcon').value.trim();
+  const inputUrl=document.getElementById('inputUrl').value.trim();
+  const inputTitle=document.getElementById('inputTitle').value.trim();
+  const inputIcon=document.getElementById('inputIcon').value.trim();
   if(inputUrl){
-    const encrypted = encryptUrl(inputUrl);
-    const newUrl = `${window.location.pathname}?data=${encrypted}`
-      + (inputTitle ? `&title=${encodeURIComponent(inputTitle)}` : '')
-      + (inputIcon ? `&icon=${encodeURIComponent(inputIcon)}` : '');
-    navigator.clipboard.writeText(window.location.origin + newUrl).then(()=>{
-      alert("加密链接已复制到剪贴板！");
-      window.location.href = newUrl;
-    }).catch(()=>{ window.location.href = newUrl; });
+    const payload={url:inputUrl,title:inputTitle,icon:inputIcon};
+    const encrypted=encrypt(JSON.stringify(payload));
+    const newUrl=`${window.location.pathname}?data=${encrypted}`;
+    navigator.clipboard.writeText(window.location.origin+newUrl).then(()=>{ alert("加密链接已复制到剪贴板！"); window.location.href=newUrl; }).catch(()=>{ window.location.href=newUrl; });
   }
 });
 </script>
